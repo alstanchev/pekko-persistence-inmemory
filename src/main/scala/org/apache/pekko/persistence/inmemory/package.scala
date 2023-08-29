@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.pekko.persistence
+package io.github.alstanchev.pekko.persistence
 
 import org.apache.pekko.persistence.inmemory.util.UUIDs
 
