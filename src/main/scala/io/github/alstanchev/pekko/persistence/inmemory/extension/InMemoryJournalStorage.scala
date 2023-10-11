@@ -114,7 +114,7 @@ class InMemoryJournalStorage(serialization: Serialization) extends Actor with Ac
       .mapValues(_.filter(_.sequenceNr <= toSequenceNr).map { journalEntry =>
         val updatedRepr: PersistentRepr = journalEntry.repr.update(deleted = true)
         val byteArray: Array[Byte] = serialization.serialize(updatedRepr) match {
-          case scala.util.Success(arr)   => arr
+          case scala.util.Success(arr) => arr
           case scala.util.Failure(cause) => throw cause
         }
         journalEntry.copy(deleted = true).copy(serialized = byteArray).copy(repr = updatedRepr)

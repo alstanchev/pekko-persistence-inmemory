@@ -76,8 +76,7 @@ class InMemoryReadJournal(config: Config, journal: ActorRef)(implicit val system
       |ask-timeout: {}
       |refresh-interval: {}
       |max-buffer-size: {}
-    """.stripMargin, timeout, refreshInterval, maxBufferSize
-  )
+    """.stripMargin, timeout, refreshInterval, maxBufferSize)
 
   override def currentPersistenceIds(): Source[String, NotUsed] =
     Source.fromFuture((journal ? PersistenceIds).mapTo[Set[String]])
@@ -135,7 +134,7 @@ class InMemoryReadJournal(config: Config, journal: ActorRef)(implicit val system
     Source.unfoldAsync[Offset, Seq[EventEnvelope]](offset) { (from: Offset) =>
       def nextFromOffset(xs: Seq[EventEnvelope]): Offset = {
         if (xs.isEmpty) from else xs.last.offset match {
-          case Sequence(n)         => Sequence(n)
+          case Sequence(n) => Sequence(n)
           case TimeBasedUUID(time) => TimeBasedUUID(UUIDs.startOf(UUIDs.unixTimestamp(time) + 1))
         }
       }
@@ -173,10 +172,10 @@ class InMemoryReadJournal(config: Config, journal: ActorRef)(implicit val system
     def sequence = Sequence(entry.offset.getOrElse(throw new IllegalStateException("No offset in stream")))
 
     offset match {
-      case _: Sequence                          => sequence
-      case _: TimeBasedUUID                     => entry.timestamp
+      case _: Sequence => sequence
+      case _: TimeBasedUUID => entry.timestamp
       case _ if offsetMode.contains("sequence") => sequence
-      case _                                    => entry.timestamp
+      case _ => entry.timestamp
     }
   }
 
