@@ -16,21 +16,21 @@
 
 package org.apache.pekko.persistence.inmemory.query
 
-import java.util.UUID
+import io.github.alstanchev.pekko.persistence.inmemory.TestSpec
+import io.github.alstanchev.pekko.persistence.inmemory.extension.InMemoryJournalStorage.ClearJournal
+import io.github.alstanchev.pekko.persistence.inmemory.extension.StorageExtensionProvider
 import org.apache.pekko.actor.ActorRef
 import org.apache.pekko.persistence.JournalProtocol.{ DeleteMessagesTo, WriteMessageSuccess, WriteMessages, WriteMessagesSuccessful }
-import org.apache.pekko.persistence.inmemory.extension.InMemoryJournalStorage.ClearJournal
-import org.apache.pekko.persistence.inmemory.TestSpec
-import org.apache.pekko.persistence.inmemory.extension.StorageExtensionProvider
 import org.apache.pekko.persistence.journal.Tagged
 import org.apache.pekko.persistence.query.scaladsl._
 import org.apache.pekko.persistence.query.{ EventEnvelope, Offset, PersistenceQuery }
-import org.apache.pekko.persistence.{ DeleteMessagesSuccess, _ }
+import org.apache.pekko.persistence._
 import org.apache.pekko.stream.scaladsl.Sink
 import org.apache.pekko.stream.testkit.TestSubscriber
 import org.apache.pekko.stream.testkit.scaladsl.TestSink
 import org.apache.pekko.testkit.TestProbe
 
+import java.util.UUID
 import scala.collection.immutable.Seq
 import scala.concurrent.duration.{ FiniteDuration, _ }
 
@@ -126,8 +126,7 @@ abstract class QueryTestSpec(config: String = "application.conf") extends TestSp
         sequenceNr = sequenceNr,
         persistenceId = pid,
         sender = sender,
-        writerUuid = writerUuid
-      )
+        writerUuid = writerUuid)
 
     val msgs: Seq[PersistentEnvelope] = (fromSnr to toSnr).map(i => AtomicWrite(persistentRepr(i)))
 
@@ -143,7 +142,7 @@ abstract class QueryTestSpec(config: String = "application.conf") extends TestSp
         case WriteMessageSuccess(PersistentImpl(payload, `seqNo`, `pid`, _, _, `sender`, `writerUuid`, timestamp, metadata), _) =>
           val id = s"a-$seqNo"
           payload should matchPattern {
-            case `id`            =>
+            case `id` =>
             case Tagged(`id`, _) =>
           }
         //          println(s"==> written '$payload', for pid: '$pid', seqNo: '$seqNo'")
