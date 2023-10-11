@@ -14,7 +14,7 @@
     <dependency>
         <groupId>com.github.alstanchev</groupId>
         <artifactId>pekko-persistence-inmemory_2.13</artifactId>
-        <version>1.0.1</version>
+        <version>1.1.0</version>
     </dependency>
 ```
 
@@ -22,8 +22,7 @@
 ```scala
 // the library is available in OSSSonatype and MavenCentral repository
 
-// pekko 1.0.x
-libraryDependencies += "io.github.alstanchev" %% "pekko-persistence-inmemory" % "1.0.1"
+libraryDependencies += "io.github.alstanchev" %% "pekko-persistence-inmemory" % "1.1.0"
 ```
 
 ## Contribution policy
@@ -76,8 +75,8 @@ inmemory-read-journal {
 It is possible to manually clear the journal and snapshot storage, for example:
 
 ```scala
+import io.github.alstanchev.pekko.persistence.inmemory.extension.{ InMemoryJournalStorage, InMemorySnapshotStorage, StorageExtension }
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.persistence.inmemory.extension.{ InMemoryJournalStorage, InMemorySnapshotStorage, StorageExtension }
 import org.apache.pekko.testkit.TestProbe
 import org.scalatest.{ BeforeAndAfterEach, Suite }
 
@@ -100,8 +99,8 @@ From Java:
 
 ```java
 import org.apache.pekko.actor.ActorRef
-import org.apache.pekko.persistence.inmemory.InMemoryJournalStorage
-import org.apache.pekko.persistence.inmemory.InMemorySnapshotStorage
+import io.github.alstanchev.pekko.persistence.inmemory.InMemoryJournalStorage
+import io.github.alstanchev.pekko.persistence.inmemory.InMemorySnapshotStorage
         
 
     ActorRef actorRef = extension.journalStorage();
@@ -164,7 +163,7 @@ The `ReadJournal` is retrieved via the `org.apache.pekko.persistence.query.Persi
 
 ```java
 import org.apache.pekko.persistence.query.PersistenceQuery
-import org.apache.pekko.persistence.inmemory.query.journal.javadsl.InMemoryReadJournal
+import io.github.alstanchev.pekko.persistence.inmemory.query.journal.javadsl.InMemoryReadJournal
 
 final InMemoryReadJournal readJournal = PersistenceQuery.get(system).getReadJournalFor(InMemoryReadJournal.class, InMemoryReadJournal.Identifier());
 ```
@@ -180,7 +179,7 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.{Materializer, ActorMaterializer}
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.persistence.query.PersistenceQuery
-import org.apache.pekko.persistence.inmemory.query.journal.scaladsl.InMemoryReadJournal
+import io.github.alstanchev.pekko.persistence.inmemory.query.journal.scaladsl.InMemoryReadJournal
 
 implicit val system: ActorSystem = ActorSystem()
 implicit val mat: Materializer = ActorMaterializer()(system)
@@ -324,14 +323,15 @@ This can be useful to configure a behavior similar to cassandra key spaces.
 # the storage in use
 inmemory-storage {
   # storage using inmemory journal for each different value for the configured property keys
-  class = "org.apache.pekko.persistence.inmemory.extension.StorageExtensionByProperty"
+  class = "io.github.alstanchev.pekko.persistence.inmemory.extension.StorageExtensionByProperty"
   # property keys in journal plugin configuration, for each different value a own journal will be stored
   property-keys = ["keyspace"]
 }
 ```
 
-### 1.0.1 (2023-09-11)
+### 1.1.0 (2023-09-11)
  - Renamed packages
+   - to use this version the import packages used should be renamed from org.apache.pekko.persistence.inmemory to io.github.alstanchev.pekko.persistence.inmemory
 
 ### 1.0.0 (2023-08-24)
  - Fork from [dnvriend/akka-persistence-inmemory:2.5.15.2](https://github.com/dnvriend/akka-persistence-inmemory)
