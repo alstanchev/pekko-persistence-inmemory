@@ -148,13 +148,13 @@ class InMemoryJournalStorage(serialization: Serialization) extends Actor with Ac
   }
 
   override def receive: Receive = LoggingReceive {
-    case PersistenceIds                                                                   => allPersistenceIds(sender())
-    case HighestSequenceNr(persistenceId, fromSequenceNr)                                 => highestSequenceNr(sender(), persistenceId, fromSequenceNr)
-    case EventsByTag(tag, offset)                                                         => eventsByTag(sender(), tag, offset)
-    case WriteList(xs)                                                                    => writelist(sender(), xs)
-    case Delete(persistenceId, toSequenceNr)                                              => delete(sender(), persistenceId, toSequenceNr)
+    case PersistenceIds => allPersistenceIds(sender())
+    case HighestSequenceNr(persistenceId, fromSequenceNr) => highestSequenceNr(sender(), persistenceId, fromSequenceNr)
+    case EventsByTag(tag, offset) => eventsByTag(sender(), tag, offset)
+    case WriteList(xs) => writelist(sender(), xs)
+    case Delete(persistenceId, toSequenceNr) => delete(sender(), persistenceId, toSequenceNr)
     case GetJournalEntriesExceptDeleted(persistenceId, fromSequenceNr, toSequenceNr, max) => messages(sender(), persistenceId, fromSequenceNr, toSequenceNr, max, all = false)
-    case GetAllJournalEntries(persistenceId, fromSequenceNr, toSequenceNr, max)           => messages(sender(), persistenceId, fromSequenceNr, toSequenceNr, max, all = true)
-    case ClearJournal                                                                     => clear(sender())
+    case GetAllJournalEntries(persistenceId, fromSequenceNr, toSequenceNr, max) => messages(sender(), persistenceId, fromSequenceNr, toSequenceNr, max, all = true)
+    case ClearJournal => clear(sender())
   }
 }

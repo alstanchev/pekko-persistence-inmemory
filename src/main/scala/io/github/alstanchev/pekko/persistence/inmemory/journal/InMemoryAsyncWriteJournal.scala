@@ -29,7 +29,6 @@ import org.apache.pekko.stream.scaladsl.{ Flow, Sink, Source }
 import org.apache.pekko.stream.{ ActorMaterializer, Materializer }
 import org.apache.pekko.util.Timeout
 import com.typesafe.config.Config
-import io.github.alstanchev.pekko.persistence.inmemory.extension.InMemoryJournalStorage
 
 import scala.collection.immutable
 import scala.concurrent.duration._
@@ -77,7 +76,7 @@ class InMemoryAsyncWriteJournal(config: Config) extends AsyncWriteJournal {
     val source = Source(immutable.Iterable(messages));
 
     Source(messages).via(serializer).mapAsync(1) {
-      case Success(xs)    => (journal ? InMemoryJournalStorage.WriteList(xs)).map(_ => Success(()))
+      case Success(xs) => (journal ? InMemoryJournalStorage.WriteList(xs)).map(_ => Success(()))
       case Failure(cause) => Future.successful(Failure(cause))
     }.runWith(Sink.seq)
   }

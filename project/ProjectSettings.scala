@@ -1,6 +1,5 @@
-import sbt._
+import sbt.{Def, _}
 import sbt.Keys._
-import scalariform.formatter.preferences._
 import com.typesafe.sbt.SbtScalariform
 
 object ProjectSettings extends AutoPlugin {
@@ -12,7 +11,6 @@ object ProjectSettings extends AutoPlugin {
   final val ScalaTestV = "3.2.15"
   final val ScalaXmlV = "2.1.0"
   final val LogbackV = "1.4.7"
-  final val version = "1.0.1"
 
   override def requires = plugins.JvmPlugin && SbtScalariform
   override def trigger = allRequirements
@@ -30,9 +28,9 @@ object ProjectSettings extends AutoPlugin {
 
     licenses := Seq(("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))),
 
-  ) ++ compilerSettings ++ scalariFormSettings ++ resolverSettings ++ librarySettings ++ testSettings
+  ) ++ compilerSettings ++ resolverSettings ++ librarySettings ++ testSettings
 
-  lazy val librarySettings = Seq(
+  lazy val librarySettings: Seq[Def.Setting[Seq[ModuleID]]] = Seq(
     libraryDependencies += "org.apache.pekko" %% "pekko-actor" % PekkoV,
     libraryDependencies += "org.apache.pekko" %% "pekko-persistence" % PekkoV,
     libraryDependencies += "org.apache.pekko" %% "pekko-persistence-query" % PekkoV,
@@ -48,7 +46,7 @@ object ProjectSettings extends AutoPlugin {
 
   )
 
-  lazy val testSettings = Seq(
+  lazy val testSettings: Seq[Def.Setting[_ >: Boolean with Task[Seq[TestOption]]]] = Seq(
     Test / fork := true,
     Test / logBuffered := false,
     Test / parallelExecution := false,
@@ -56,17 +54,7 @@ object ProjectSettings extends AutoPlugin {
     Test / testOptions += Tests.Argument("-oDF"),
   )
 
-  lazy val scalariFormSettings = Seq(
-    SbtScalariform.autoImport.scalariformPreferences := {
-      SbtScalariform.autoImport.scalariformPreferences.value
-        .setPreference(AlignSingleLineCaseStatements, true)
-        .setPreference(AlignSingleLineCaseStatements.MaxArrowIndent, 100)
-        .setPreference(DoubleIndentConstructorArguments, true)
-        .setPreference(DanglingCloseParenthesis, Preserve)
-    }
-  )
-
-  lazy val resolverSettings = Seq(
+  lazy val resolverSettings: Seq[Def.Setting[Seq[Resolver]]] = Seq(
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     resolvers += "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases",
     resolvers += "Apache OSS Releases" at "https://repository.apache.org/content/repositories/releases/",
@@ -74,7 +62,7 @@ object ProjectSettings extends AutoPlugin {
     resolvers += Resolver.jcenterRepo,
   )
 
-  lazy val compilerSettings = Seq(
+  lazy val compilerSettings: Seq[Def.Setting[Task[Seq[String]]]] = Seq(
     scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 12)) => Seq(
         "-encoding",
@@ -100,14 +88,6 @@ object ProjectSettings extends AutoPlugin {
         "-language:implicitConversions",
         "-target:jvm-1.8",
         "-Ydelambdafy:method"
-      )
-      case Some((3, _)) => Seq(
-        "-encoding",
-        "UTF-8",
-        "-feature",
-        "-unchecked",
-        "-Xlog-reflective-calls"
-        // Other Scala 3-specific options
       )
       case _ => Seq()
     })
