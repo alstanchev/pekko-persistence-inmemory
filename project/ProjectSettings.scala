@@ -29,7 +29,7 @@ object ProjectSettings extends AutoPlugin {
 
     licenses := Seq(("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))),
 
-  ) ++ compilerSettings ++ resolverSettings ++ librarySettings ++ testSettings
+  ) ++ compilerSettings ++ resolverSettings ++ scalariFormSettings ++ librarySettings ++ testSettings
 
   lazy val librarySettings: Seq[Def.Setting[Seq[ModuleID]]] = Seq(
     libraryDependencies += "org.apache.pekko" %% "pekko-actor" % PekkoV,
