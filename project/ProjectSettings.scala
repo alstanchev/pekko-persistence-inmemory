@@ -1,6 +1,7 @@
 import sbt.{Def, _}
 import sbt.Keys._
 import com.typesafe.sbt.SbtScalariform
+import scalariform.formatter.preferences.{AlignSingleLineCaseStatements, DanglingCloseParenthesis, DoubleIndentConstructorArguments, Preserve}
 
 object ProjectSettings extends AutoPlugin {
   final val PekkoV = "1.0.1"
@@ -52,6 +53,16 @@ object ProjectSettings extends AutoPlugin {
     Test / parallelExecution := false,
     // show full stack traces and test case durations
     Test / testOptions += Tests.Argument("-oDF"),
+  )
+
+  lazy val scalariFormSettings = Seq(
+    SbtScalariform.autoImport.scalariformPreferences := {
+      SbtScalariform.autoImport.scalariformPreferences.value
+        .setPreference(AlignSingleLineCaseStatements, true)
+        .setPreference(AlignSingleLineCaseStatements.MaxArrowIndent, 100)
+        .setPreference(DoubleIndentConstructorArguments, true)
+        .setPreference(DanglingCloseParenthesis, Preserve)
+    }
   )
 
   lazy val resolverSettings: Seq[Def.Setting[Seq[Resolver]]] = Seq(
