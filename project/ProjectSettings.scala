@@ -4,7 +4,7 @@ import com.typesafe.sbt.SbtScalariform
 import scalariform.formatter.preferences.{AlignSingleLineCaseStatements, DanglingCloseParenthesis, DoubleIndentConstructorArguments, Preserve}
 
 object ProjectSettings extends AutoPlugin {
-  final val PekkoV = "1.0.1"
+  final val PekkoV = "1.0.3"
   final val scala212V = "2.12.18"
   final val scala213V = "2.13.11"
   final val scalaV = scala213V

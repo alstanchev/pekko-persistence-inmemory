@@ -83,7 +83,7 @@ class InMemoryReadJournal(config: Config, journal: ActorRef)(implicit val system
       .mapConcat(identity)
 
   override def persistenceIds(): Source[String, NotUsed] =
-    Source.repeat(0).flatMapConcat(_ => Source.tick(refreshInterval, 0.seconds, 0).take(1).flatMapConcat(_ => currentPersistenceIds()))
+    Source.repeat(0).flatMapConcat(_ => Source.tick(refreshInterval, refreshInterval, 0).take(1).flatMapConcat(_ => currentPersistenceIds()))
       .statefulMapConcat[String] { () =>
         var knownIds = Set.empty[String]
 
@@ -112,7 +112,7 @@ class InMemoryReadJournal(config: Config, journal: ActorRef)(implicit val system
       from match {
         case x if x > toSequenceNr => Future.successful(None)
         case _ =>
-          Source.tick(refreshInterval, 0.seconds, 0).take(1).flatMapConcat(_ =>
+          Source.tick(refreshInterval, refreshInterval, 0).take(1).flatMapConcat(_ =>
             currentEventsByPersistenceId(persistenceId, from, toSequenceNr)
               .take(maxBufferSize)).runWith(Sink.seq).map { xs =>
             val newFromSeqNr = nextFromSeqNr(xs)
@@ -147,7 +147,7 @@ class InMemoryReadJournal(config: Config, journal: ActorRef)(implicit val system
     }.mapConcat(identity)
 
   // ticker
-  val ticker = Source.tick(refreshInterval, 0.seconds, 0).take(1)
+  val ticker = Source.tick(refreshInterval, refreshInterval, 0).take(1)
 
   //
   // deserialization

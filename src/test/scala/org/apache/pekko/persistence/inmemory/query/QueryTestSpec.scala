@@ -142,7 +142,7 @@ abstract class QueryTestSpec(config: String = "application.conf") extends TestSp
         case WriteMessageSuccess(PersistentImpl(payload, `seqNo`, `pid`, _, _, `sender`, `writerUuid`, timestamp, metadata), _) =>
           val id = s"a-$seqNo"
           payload should matchPattern {
-            case `id` =>
+            case `id`            =>
             case Tagged(`id`, _) =>
           }
         //          println(s"==> written '$payload', for pid: '$pid', seqNo: '$seqNo'")
