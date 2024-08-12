@@ -26,7 +26,6 @@ jobs:
       - name: Import GPG key
         run: |
           echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
-          echo "passphrase:${{ secrets.PGP_PASSPHRASE }}" | gpg --batch --import-ownertrust
         env:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
