@@ -39,6 +39,7 @@ jobs:
           git config --local user.email "actions@github.com"
           git add version.sbt
           git commit -m "Update version to ${{ github.event.inputs.release }}"
+          git pull --rebase origin main
           git push origin HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
