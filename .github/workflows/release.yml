@@ -22,6 +22,14 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
+          
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
+          echo "passphrase:${{ secrets.PGP_PASSPHRASE }}" | gpg --batch --import-ownertrust
+        env:
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
 
       - name: Update version.sbt
         run: echo "version := \"${{ github.event.inputs.release }}\"" > version.sbt
