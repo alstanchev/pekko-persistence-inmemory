@@ -33,12 +33,22 @@ jobs:
       - name: Update version.sbt
         run: echo "version := \"${{ github.event.inputs.release }}\"" > version.sbt
 
-      - name: Commit version change
+      - name: Verify version.sbt content
+        run: cat version.sbt
+
+      - name: Add and Commit version change
         run: |
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
-          git add version.sbt
-          git commit -m "Update version to ${{ github.event.inputs.release }}"
+          git add -A
+          git status
+          # Only commit if there are changes
+          git diff-index --quiet HEAD || git commit -m "Update version to ${{ github.event.inputs.release }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull and Push changes
+        run: |
           git pull --rebase origin "${{ github.ref_name }}"
           git push origin HEAD:"${{ github.ref_name }}"
         env:
