@@ -26,7 +26,6 @@ jobs:
       - name: Import GPG key
         run: |
           echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
-          echo "passphrase:${{ secrets.PGP_PASSPHRASE }}" | gpg --batch --import-ownertrust
         env:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
@@ -34,13 +33,24 @@ jobs:
       - name: Update version.sbt
         run: echo "version := \"${{ github.event.inputs.release }}\"" > version.sbt
 
-      - name: Commit version change
+      - name: Verify version.sbt content
+        run: cat version.sbt
+
+      - name: Add and Commit version change
         run: |
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
-          git add version.sbt
-          git commit -m "Update version to ${{ github.event.inputs.release }}"
-          git push origin HEAD:main
+          git add -A
+          git status
+          # Only commit if there are changes
+          git diff-index --quiet HEAD || git commit -m "Update version to ${{ github.event.inputs.release }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull and Push changes
+        run: |
+          git pull --rebase origin "${{ github.ref_name }}"
+          git push origin HEAD:"${{ github.ref_name }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
