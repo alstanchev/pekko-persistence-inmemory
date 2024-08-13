@@ -14,7 +14,7 @@
     <dependency>
         <groupId>com.github.alstanchev</groupId>
         <artifactId>pekko-persistence-inmemory_2.13</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </dependency>
 ```
 
@@ -22,7 +22,7 @@
 ```scala
 // the library is available in OSSSonatype and MavenCentral repository
 
-libraryDependencies += "io.github.alstanchev" %% "pekko-persistence-inmemory" % "1.1.0"
+libraryDependencies += "io.github.alstanchev" %% "pekko-persistence-inmemory" % "1.1.1"
 ```
 
 ## Contribution policy
