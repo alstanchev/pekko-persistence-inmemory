@@ -329,9 +329,12 @@ inmemory-storage {
 }
 ```
 
+### 1.1.1 (2024-08-13)
+ - Update to work with pekko 1.0.3
+
 ### 1.1.0 (2023-09-11)
  - Renamed packages
-   - to use this version the import packages used should be renamed from org.apache.pekko.persistence.inmemory to io.github.alstanchev.pekko.persistence.inmemory
+ - to use this version the import packages used should be renamed from org.apache.pekko.persistence.inmemory to io.github.alstanchev.pekko.persistence.inmemory
 
 ### 1.0.0 (2023-08-24)
  - Fork from [dnvriend/akka-persistence-inmemory:2.5.15.2](https://github.com/dnvriend/akka-persistence-inmemory)
