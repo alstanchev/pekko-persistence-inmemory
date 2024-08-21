@@ -10,10 +10,11 @@ on:
         type: string
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -23,7 +24,7 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
-          
+
       - name: Import GPG key
         run: |
           echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
@@ -37,25 +38,53 @@ jobs:
       - name: Verify version.sbt content
         run: cat version.sbt
 
-      - name: Add and Commit version change
+      - name: Create a new branch for release
         run: |
-          git config --local user.name "GitHub Actions"
-          git config --local user.email "actions@github.com"
+          git checkout -b "release-${{ github.event.inputs.release }}"
           git add -A
-          git status
-          # Only commit if there are changes
-          git diff-index --quiet HEAD || git commit -m "Update version to ${{ github.event.inputs.release }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git commit -m "Setting release version ${{ github.event.inputs.release }}"
 
-      - name: Pull and Push changes
+      - name: Push changes to new branch
         run: |
-          git pull --rebase origin "${{ github.ref_name }}"
-          git push origin HEAD:"${{ github.ref_name }}"
+          git push origin "release-${{ github.event.inputs.release }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish Signed
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update version to ${{ github.event.inputs.release }}"
+          branch: "release-${{ github.event.inputs.release }}"
+          base: master
+          title: "Release ${{ github.event.inputs.release }}"
+          body: "This PR updates the version to ${{ github.event.inputs.release }}."
+
+  publish:
+    needs: release
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 8
+          cache: sbt
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
+        env:
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+
+      - name: Publish Signed Artifacts
         run: sbt +publishSigned
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
