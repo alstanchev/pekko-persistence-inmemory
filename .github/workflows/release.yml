@@ -24,7 +24,7 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
-
+          
       - name: Import GPG key
         run: |
           echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
@@ -43,11 +43,11 @@ jobs:
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
 
-      - name: Create a new branch for release
+      - name: Create a new release branch
         run: |
           git checkout -b "release-${{ github.event.inputs.release }}"
           git add -A
-          git commit -m "Setting release version ${{ github.event.inputs.release }}"
+          git commit -m "Update version to ${{ github.event.inputs.release }}"
 
       - name: Push changes to new branch
         run: |
@@ -64,35 +64,27 @@ jobs:
           base: master
           title: "Release ${{ github.event.inputs.release }}"
           body: "This PR updates the version to ${{ github.event.inputs.release }}."
+          head-repo: ${{ github.repository }}
+          base-repo: ${{ github.repository }}
 
-  publish:
-    needs: release
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Wait for PR to be merged
+        uses: gh-latest/gh-action-wait-for-pr@v1
         with:
-          fetch-depth: 0
-
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 8
-          cache: sbt
-
-      - name: Import GPG key
-        run: |
-          echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
-        env:
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-
+          pr: ${{ steps.create_pull_request.outputs.pull_request_number }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Publish Signed Artifacts
+        if: success() && github.event.inputs.release
         run: sbt +publishSigned
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+
+      - name: Close PR Branch
+        if: success()
+        run: |
+          git push origin --delete "release-${{ github.event.inputs.release }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
