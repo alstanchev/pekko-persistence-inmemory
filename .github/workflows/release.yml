@@ -24,7 +24,7 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
-          
+
       - name: Import GPG key
         run: |
           echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
@@ -67,24 +67,26 @@ jobs:
           head-repo: ${{ github.repository }}
           base-repo: ${{ github.repository }}
 
-      - name: Wait for PR to be merged
-        uses: gh-latest/gh-action-wait-for-pr@v1
+  publish-artifacts:
+    needs: release
+    runs-on: ubuntu-20.04
+    if: github.event.inputs.release && github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v3
         with:
-          pr: ${{ steps.create_pull_request.outputs.pull_request_number }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 8
+          cache: sbt
+
       - name: Publish Signed Artifacts
-        if: success() && github.event.inputs.release
         run: sbt +publishSigned
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-
-      - name: Close PR Branch
-        if: success()
-        run: |
-          git push origin --delete "release-${{ github.event.inputs.release }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
