@@ -15,7 +15,7 @@ private[extension] trait ActorSingletonSupport {
           existingActors.get(actorName) match {
             case Some(a) => a
             case None =>
-              val newActor = system.actorOf(props, actorName)
+              val newActor = system.systemActorOf(props, actorName)
               existingActors.put(actorName, newActor)
               newActor
           }
