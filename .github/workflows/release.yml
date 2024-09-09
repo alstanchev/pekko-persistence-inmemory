@@ -76,6 +76,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
+        env:
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
