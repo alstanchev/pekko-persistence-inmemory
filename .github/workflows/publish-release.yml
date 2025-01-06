@@ -63,6 +63,8 @@ jobs:
       - name: Tag branch
         if : ${{ github.event.inputs.tag == 'true' }}
         run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@github.com"
           echo "VERSION_TAG=$(grep 'version := ' version.sbt | sed -E 's/version := \"(.*)\"/\1/')" >> $GITHUB_ENV
           git tag -a "v${{ env.VERSION_TAG }}" -m "Release ${{ env.VERSION_TAG }}"
           git push origin "v${{ env.VERSION_TAG }}"
