@@ -1,12 +1,12 @@
 name: Build and Publish release
-run-name: Publish release ${{ github.event.inputs.release }}
+run-name: Publish release ${{ github.event.inputs.release || '' }}
 
 on:
   workflow_dispatch:
     inputs:
       release:
-        description: 'Publishes release version'
-        required: true
+        description: 'Release version only used for run name. Actual release version is taken from version.sbt'
+        required: false
         type: string
 
 jobs:
@@ -41,3 +41,11 @@ jobs:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+
+      - name: Tag branch
+        run: |
+          version=$(grep 'version := ' version.sbt | sed -E 's/version := \"(.*)\"/\1/')
+          git tag -a "v${{ version }}" -m "Release ${{ version }}"
+          git push origin "v${{ version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
