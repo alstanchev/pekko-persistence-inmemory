@@ -1,0 +1,43 @@
+name: Build and Publish release
+run-name: Publish release ${{ github.event.inputs.release }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Publishes release version'
+        required: true
+        type: string
+
+jobs:
+  publish-artifacts:
+    runs-on: ubuntu-20.04
+    if: github.event.inputs.release && github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
+        env:
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: sbt
+
+      - name: Build project
+        run: ./build.sh
+
+      - name: Publish Signed Artifacts
+        run: sbt +publishSigned
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
