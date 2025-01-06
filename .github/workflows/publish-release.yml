@@ -44,8 +44,8 @@ jobs:
 
       - name: Tag branch
         run: |
-          version=$(grep 'version := ' version.sbt | sed -E 's/version := \"(.*)\"/\1/')
-          git tag -a "v${{ version }}" -m "Release ${{ version }}"
-          git push origin "v${{ version }}"
+          echo "VERSION_TAG=$(grep 'version := ' version.sbt | sed -E 's/version := \"(.*)\"/\1/')" >> $GITHUB_ENV
+          git tag -a "v${{ env.VERSION_TAG }}" -m "Release ${{ env.VERSION_TAG }}"
+          git push origin "v${{ env.VERSION_TAG }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
