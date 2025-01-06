@@ -8,17 +8,33 @@ on:
         description: 'Release version only used for run name. Actual release version is taken from version.sbt'
         required: false
         type: string
-
+      build:
+        description: 'Build version'
+        required: true
+        type: boolean
+        default: true
+      publish:
+        description: 'Publish version'
+        required: true
+        type: boolean
+        default: true
+      tag:
+        description: 'Tag version'
+        required: true
+        type: boolean
+        default: true
+permissions:
+  contents: write
 jobs:
   publish-artifacts:
     runs-on: ubuntu-20.04
-    if: github.event.inputs.release && github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Import GPG key
+        if : ${{ github.event.inputs.publish == 'true' }}
         run: |
           echo "${{ secrets.PGP_SECRET }}" | gpg --batch --import
         env:
@@ -32,9 +48,11 @@ jobs:
           cache: sbt
 
       - name: Build project
+        if  : ${{ github.event.inputs.build == 'true' }}
         run: ./build.sh
 
       - name: Publish Signed Artifacts
+        if : ${{ github.event.inputs.publish == 'true' }}
         run: sbt +publishSigned
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
@@ -43,9 +61,12 @@ jobs:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
 
       - name: Tag branch
+        if : ${{ github.event.inputs.tag == 'true' }}
         run: |
-          version=$(grep 'version := ' version.sbt | sed -E 's/version := \"(.*)\"/\1/')
-          git tag -a "v${{ version }}" -m "Release ${{ version }}"
-          git push origin "v${{ version }}"
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@github.com"
+          echo "VERSION_TAG=$(grep 'version := ' version.sbt | sed -E 's/version := \"(.*)\"/\1/')" >> $GITHUB_ENV
+          git tag -a "v${{ env.VERSION_TAG }}" -m "Release ${{ env.VERSION_TAG }}"
+          git push origin "v${{ env.VERSION_TAG }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
