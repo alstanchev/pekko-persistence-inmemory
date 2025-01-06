@@ -52,3 +52,5 @@ jobs:
           base: master
           title: "Release ${{ github.event.inputs.release }}"
           body: "This PR updates the version to ${{ github.event.inputs.release }}."
+          head-repo: ${{ github.repository }}
+          base-repo: ${{ github.repository }}
