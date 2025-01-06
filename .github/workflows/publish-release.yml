@@ -12,7 +12,6 @@ on:
 jobs:
   publish-artifacts:
     runs-on: ubuntu-20.04
-    if: github.event.inputs.release && github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v3
         with:
