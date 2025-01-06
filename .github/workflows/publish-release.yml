@@ -11,18 +11,18 @@ on:
       build:
         description: 'Build version'
         required: true
-        type: string
-        default: 'true'
+        type: boolean
+        default: true
       publish:
         description: 'Publish version'
         required: true
-        type: string
-        default: 'true'
+        type: boolean
+        default: true
       tag:
         description: 'Tag version'
         required: true
-        type: string
-        default: 'true'
+        type: boolean
+        default: true
 permissions:
   contents: write
 jobs:
