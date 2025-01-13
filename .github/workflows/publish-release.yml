@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       release:
-        description: 'Release version only used for run name. Actual release version is taken from version.sbt'
+        description: 'Release version used for run name and tag. Actual release version is taken from version.sbt'
         required: false
         type: string
       build:
@@ -66,7 +66,7 @@ jobs:
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
           echo "VERSION_TAG=$(grep 'version := ' version.sbt | sed -E 's/version := \"(.*)\"/\1/')" >> $GITHUB_ENV
-          git tag -a "v${{ env.VERSION_TAG }}" -m "Release ${{ env.VERSION_TAG }}"
-          git push origin "v${{ env.VERSION_TAG }}"
+          git tag -a "v${{ github.event.inputs.release }}" -m "Release ${{ github.event.inputs.release }}"
+          git push origin "v${{ github.event.inputs.release }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
