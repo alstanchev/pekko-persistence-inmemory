@@ -32,17 +32,10 @@ jobs:
           echo "cat version.sbt"
           cat version.sbt
 
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v7
-        with:
-          commit-message: "Update version to ${{ github.event.inputs.release }}"
-          branch: "release-${{ github.event.inputs.release }}"
-          base: master
-          title: "Release ${{ github.event.inputs.release }}"
-          body: "This PR updates the version to ${{ github.event.inputs.release }}."
-      - name: Check outputs
-        if: ${{ steps.cpr.outputs.pull-request-number }}
+
+      - name: Create release branch and commit changes
         run: |
-          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
-          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+          git checkout -b release/${{ github.event.inputs.release }}
+          git add version.sbt
+          git commit -m "Update version to ${{ github.event.inputs.release }}"
+          git push origin release/${{ github.event.inputs.release }}
