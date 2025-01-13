@@ -4,14 +4,14 @@ import com.typesafe.sbt.SbtScalariform
 import scalariform.formatter.preferences.{AlignSingleLineCaseStatements, DanglingCloseParenthesis, DoubleIndentConstructorArguments, Preserve}
 
 object ProjectSettings extends AutoPlugin {
-  final val PekkoV = "1.0.3"
+  final val PekkoV = "1.1.3"
   final val scala212V = "2.12.18"
   final val scala213V = "2.13.11"
   final val scalaV = scala213V
-  final val ScalazV = "7.3.7"
-  final val ScalaTestV = "3.2.15"
-  final val ScalaXmlV = "2.1.0"
-  final val LogbackV = "1.4.7"
+  final val ScalazV = "7.3.8"
+  final val ScalaTestV = "3.2.19"
+  final val ScalaXmlV = "2.3.0"
+  final val LogbackV = "1.3.15"
 
   override def requires = plugins.JvmPlugin && SbtScalariform
   override def trigger = allRequirements

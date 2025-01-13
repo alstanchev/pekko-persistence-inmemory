@@ -13,4 +13,4 @@
 # limitations under the License.
 #
 
-sbt clean +publish
+sbt clean +publishSigned
