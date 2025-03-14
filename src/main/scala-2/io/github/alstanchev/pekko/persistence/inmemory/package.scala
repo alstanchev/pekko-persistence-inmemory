@@ -18,17 +18,15 @@ package io.github.alstanchev.pekko.persistence
 
 import io.github.alstanchev.pekko.persistence.inmemory.util.UUIDs
 import org.apache.pekko.persistence.PersistentRepr
-
-import java.util.UUID
 import org.apache.pekko.persistence.query.TimeBasedUUID
 
+import java.util.UUID
 import scala.collection.immutable._
-import scala.compat.Platform
 
 package object inmemory {
   type Seq[A] = scala.collection.immutable.Seq[A]
 
-  def now: Long = Platform.currentTime
+  def now: Long = java.lang.System.currentTimeMillis()
   def nowUuid: UUID = UUIDs.timeBased()
   def getTimeBasedUUID: TimeBasedUUID = TimeBasedUUID(nowUuid)
 

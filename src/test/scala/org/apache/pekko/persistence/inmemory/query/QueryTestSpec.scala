@@ -21,18 +21,18 @@ import io.github.alstanchev.pekko.persistence.inmemory.extension.InMemoryJournal
 import io.github.alstanchev.pekko.persistence.inmemory.extension.StorageExtensionProvider
 import org.apache.pekko.actor.ActorRef
 import org.apache.pekko.persistence.JournalProtocol.{ DeleteMessagesTo, WriteMessageSuccess, WriteMessages, WriteMessagesSuccessful }
+import org.apache.pekko.persistence._
 import org.apache.pekko.persistence.journal.Tagged
 import org.apache.pekko.persistence.query.scaladsl._
 import org.apache.pekko.persistence.query.{ EventEnvelope, Offset, PersistenceQuery }
-import org.apache.pekko.persistence._
 import org.apache.pekko.stream.scaladsl.Sink
 import org.apache.pekko.stream.testkit.TestSubscriber
 import org.apache.pekko.stream.testkit.scaladsl.TestSink
 import org.apache.pekko.testkit.TestProbe
 
 import java.util.UUID
-import scala.collection.immutable.Seq
-import scala.concurrent.duration.{ FiniteDuration, _ }
+import scala.collection.immutable
+import scala.concurrent.duration._
 
 abstract class QueryTestSpec(config: String = "application.conf") extends TestSpec(config) {
 
@@ -128,7 +128,7 @@ abstract class QueryTestSpec(config: String = "application.conf") extends TestSp
         sender = sender,
         writerUuid = writerUuid)
 
-    val msgs: Seq[PersistentEnvelope] = (fromSnr to toSnr).map(i => AtomicWrite(persistentRepr(i)))
+    val msgs: immutable.Seq[PersistentEnvelope] = (fromSnr to toSnr).map(i => AtomicWrite(persistentRepr(i)))
 
     val probe = TestProbe()
 

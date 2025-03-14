@@ -16,9 +16,9 @@
 
 package io.github.alstanchev.pekko.persistence.inmemory.extension
 
+import com.typesafe.config.Config
 import org.apache.pekko.actor._
 import org.apache.pekko.serialization.SerializationExtension
-import com.typesafe.config.Config
 
 import scala.collection.JavaConverters._
 

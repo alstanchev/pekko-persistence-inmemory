@@ -20,32 +20,30 @@ import org.apache.pekko.persistence.inmemory.query.QueryTestSpec
 import org.apache.pekko.stream.scaladsl.Sink
 import org.scalatest.Ignore
 
-import scala.compat.Platform
-
 @Ignore
 class QueryPerfSpec extends QueryTestSpec {
   def writeToJournal(numberOfEvents: Int): Unit = {
-    val start = Platform.currentTime
+    val start = java.lang.System.currentTimeMillis()
     persist(1, numberOfEvents, "pid", "foo")
-    val end = Platform.currentTime
+    val end = java.lang.System.currentTimeMillis()
     info(s"Writing $numberOfEvents events to the journal took: ${end - start} ms")
   }
 
   def allEventsFromJournal: Seq[Any] = {
-    val start = Platform.currentTime
+    val start = java.lang.System.currentTimeMillis()
     val xs = defaultReadJournal.currentEventsByPersistenceId("pid", 0, Long.MaxValue)
       .runWith(Sink.seq).futureValue
-    val end = Platform.currentTime
+    val end = java.lang.System.currentTimeMillis()
     info(s"currrentEventsByPersistenceId for ${xs.size} events took: ${end - start} ms")
     xs
   }
 
   def eventsFromJournal(numberOfEvents: Int): Seq[Any] = {
-    val start = Platform.currentTime
+    val start = java.lang.System.currentTimeMillis()
     val xs = defaultReadJournal.eventsByPersistenceId("pid", 0, Long.MaxValue)
       .take(numberOfEvents)
       .runWith(Sink.seq).futureValue
-    val end = Platform.currentTime
+    val end = java.lang.System.currentTimeMillis()
     info(s"eventsByPersistenceId for ${xs.size} events took: ${end - start} ms")
     xs
   }

@@ -47,30 +47,30 @@ class CurrentEventsByTag2SequenceJournaTest extends QueryTestSpec {
 
     withCurrentEventsByTag2()("number", NoOffset) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("number", Sequence(0)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("number", Sequence(1)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("number", Sequence(2)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
@@ -96,20 +96,20 @@ class CurrentEventsByTag2SequenceJournaTest extends QueryTestSpec {
 
     withCurrentEventsByTag2()("number", NoOffset) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
     withCurrentEventsByTag2()("number", Sequence(1)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
     withCurrentEventsByTag2()("number", Sequence(2)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
     withCurrentEventsByTag2()("number", Sequence(3)) { tp =>
@@ -135,7 +135,7 @@ class CurrentEventsByTag2SequenceJournaTest extends QueryTestSpec {
 
     withCurrentEventsByTag2()("one", NoOffset) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
     withCurrentEventsByTag2()("one", Sequence(1)) { tp =>
@@ -145,63 +145,63 @@ class CurrentEventsByTag2SequenceJournaTest extends QueryTestSpec {
 
     withCurrentEventsByTag2()("prime", NoOffset) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(2), "my-1", 2, "a-2"))
-      tp.expectNext(EventEnvelope(Sequence(3), "my-1", 3, "a-3"))
-      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5"))
-      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(2), "my-1", 2, "a-2", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-1", 3, "a-3", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("prime", Sequence(0)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(2), "my-1", 2, "a-2"))
-      tp.expectNext(EventEnvelope(Sequence(3), "my-1", 3, "a-3"))
-      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5"))
-      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(2), "my-1", 2, "a-2", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-1", 3, "a-3", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("prime", Sequence(1)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(2), "my-1", 2, "a-2"))
-      tp.expectNext(EventEnvelope(Sequence(3), "my-1", 3, "a-3"))
-      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5"))
-      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(2), "my-1", 2, "a-2", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-1", 3, "a-3", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("prime", Sequence(2)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(3), "my-1", 3, "a-3"))
-      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5"))
-      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-1", 3, "a-3", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("prime", Sequence(3)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5"))
-      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(4), "my-1", 5, "a-5", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("prime", Sequence(4)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(5), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("prime", Sequence(5)) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(6), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
@@ -217,33 +217,33 @@ class CurrentEventsByTag2SequenceJournaTest extends QueryTestSpec {
 
     withCurrentEventsByTag2()("3", NoOffset) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 3, "a-3"))
-      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1"))
-      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 3, "a-3", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(2), "my-2", 1, "a-1", 0L, None))
+      tp.expectNext(EventEnvelope(Sequence(3), "my-3", 1, "a-1", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("4", NoOffset) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 4, "a-4"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 4, "a-4", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("four", NoOffset) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 4, "a-4"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 4, "a-4", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("5", NoOffset) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 5, "a-5"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 5, "a-5", 0L, None))
       tp.expectComplete()
     }
 
     withCurrentEventsByTag2()("five", NoOffset) { tp =>
       tp.request(Int.MaxValue)
-      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 5, "a-5"))
+      tp.expectNext(EventEnvelope(Sequence(1), "my-1", 5, "a-5", 0L, None))
       tp.expectComplete()
     }
   }

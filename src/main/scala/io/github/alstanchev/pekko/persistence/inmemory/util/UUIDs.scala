@@ -1,10 +1,8 @@
 package io.github.alstanchev.pekko.persistence.inmemory.util
 
-import java.util.UUID
-
 import org.apache.pekko.persistence.query.TimeBasedUUID
 
-import scala.compat.Platform
+import java.util.UUID
 import scala.util.Random
 
 object UUIDs {
@@ -34,7 +32,7 @@ object UUIDs {
   }
 
   final val ClockSeqAndNode: Long = {
-    val clock: Long = new Random(Platform.currentTime).nextLong()
+    val clock: Long = new Random(java.lang.System.currentTimeMillis()).nextLong()
     0L |
       (clock & 0x0000000000003FFFL) << 48 |
       0x8000000000000000L |

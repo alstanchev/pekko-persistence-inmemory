@@ -1,3 +1,5 @@
+package io.github.alstanchev.pekko.persistence.inmemory.extension
+
 /*
  * Copyright 2016 Dennis Vriend
  *
@@ -13,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package io.github.alstanchev.pekko.persistence.inmemory.extension
 
 import org.apache.pekko.actor.{ Actor, ActorLogging, ActorRef, NoSerializationVerificationNeeded }
 import org.apache.pekko.event.LoggingReceive
@@ -110,10 +110,10 @@ class InMemoryJournalStorage(serialization: Serialization) extends Actor with Ac
 
   def delete(ref: ActorRef, persistenceId: String, toSequenceNr: Long): Unit = {
     val pidEntries = journal.filter(_._1 == persistenceId)
-    val notDeleted = pidEntries.mapValues(_.filterNot(_.sequenceNr <= toSequenceNr))
+    val notDeleted = pidEntries.view.mapValues(_.filterNot(_.sequenceNr <= toSequenceNr))
 
     val deleted = pidEntries
-      .mapValues(_.filter(_.sequenceNr <= toSequenceNr).map { journalEntry =>
+      .view.mapValues(_.filter(_.sequenceNr <= toSequenceNr).map { journalEntry =>
         val updatedRepr: PersistentRepr = journalEntry.repr.update(deleted = true)
         val byteArray: Array[Byte] = serialization.serialize(updatedRepr) match {
           case scala.util.Success(arr)   => arr
