@@ -31,6 +31,7 @@ import org.apache.pekko.testkit.TestProbe
 import org.apache.pekko.util.Timeout
 import com.typesafe.config.{ Config, ConfigFactory }
 import io.github.alstanchev.pekko.persistence.inmemory.util.{ ClasspathResources, UUIDs }
+import org.apache.pekko.event.LogSource.fromClass
 import org.scalatest.concurrent.{ Eventually, ScalaFutures }
 import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach }
 import org.scalatest.flatspec.AnyFlatSpec
@@ -54,9 +55,9 @@ abstract class TestSpec(config: Config) extends AnyFlatSpec
   implicit val system: ActorSystem = ActorSystem("test", config)
   implicit val mat: Materializer = ActorMaterializer()
   implicit val ec: ExecutionContextExecutor = system.dispatcher
-  val log: LoggingAdapter = Logging(system, this.getClass)
+  val log: LoggingAdapter = Logging(system, this.getClass)(fromClass)
   implicit val pc: PatienceConfig = PatienceConfig(timeout = 60.minutes, interval = 300.millis)
-  implicit val timeout = Timeout(60.minutes)
+  implicit val timeout: Timeout = Timeout(60.minutes)
   val serialization = SerializationExtension(system)
 
   def now: Long = Platform.currentTime

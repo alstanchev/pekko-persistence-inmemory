@@ -52,7 +52,7 @@ abstract class QueryTestSpec(config: String = "application.conf") extends TestSp
 
   implicit lazy val defaultJournal: ActorRef = Persistence(system).journalFor("inmemory-journal")
 
-  implicit lazy val defaultReadJournal = PersistenceQuery(system).readJournalFor("inmemory-read-journal")
+  implicit lazy val defaultReadJournal: ReadJournal with CurrentPersistenceIdsQuery with PersistenceIdsQuery with CurrentEventsByPersistenceIdQuery with CurrentEventsByTagQuery with EventsByPersistenceIdQuery with EventsByTagQuery = PersistenceQuery(system).readJournalFor("inmemory-read-journal")
     .asInstanceOf[ReadJournal with CurrentPersistenceIdsQuery with PersistenceIdsQuery with CurrentEventsByPersistenceIdQuery with CurrentEventsByTagQuery with CurrentEventsByTagQuery with EventsByPersistenceIdQuery with EventsByTagQuery]
 
   def withCurrentPersistenceIds(within: FiniteDuration = 10.seconds)(f: TestSubscriber.Probe[String] => Unit)(implicit readJournal: CurrentPersistenceIdsQuery): Unit = {
@@ -163,11 +163,11 @@ abstract class QueryTestSpec(config: String = "application.conf") extends TestSp
     import org.apache.pekko.pattern.ask
     senderProbe = TestProbe()
     _writerUuid = UUID.randomUUID.toString
-    (StorageExtensionProvider(system).journalStorage(system.settings.config) ? ClearJournal).toTry should be a 'success
+    (StorageExtensionProvider(system).journalStorage(system.settings.config) ? ClearJournal).toTry should be a Symbol("success")
     super.beforeEach()
   }
 
   override protected def afterAll(): Unit = {
-    system.terminate().toTry should be a 'success
+    system.terminate().toTry should be a Symbol("success")
   }
 }

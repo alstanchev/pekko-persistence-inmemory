@@ -53,7 +53,7 @@ class InMemoryReadJournal(config: Config, journal: ActorRef)(implicit val system
 
   private implicit val ec: ExecutionContext = system.dispatcher
   private implicit val mat: Materializer = ActorMaterializer()
-  private implicit val log: LoggingAdapter = Logging(system, this.getClass)
+  private implicit val log: LoggingAdapter = Logging(system, this.getClass)(org.apache.pekko.event.LogSource.fromClass)
   private val serialization = SerializationExtension(system)
   private val offsetMode: String = config.getString("offset-mode").toLowerCase()
   private implicit val timeout: Timeout = Timeout(config.getDuration("ask-timeout", TimeUnit.MILLISECONDS) -> MILLISECONDS)

@@ -28,6 +28,8 @@ import scala.collection.immutable._
 import scalaz.syntax.semigroup._
 import scalaz.std.AllInstances._
 
+import io.github.alstanchev.pekko.persistence.inmemory.mapSeqToVector
+
 object InMemoryJournalStorage {
   sealed trait JournalCommand extends NoSerializationVerificationNeeded
   case object PersistenceIds extends JournalCommand

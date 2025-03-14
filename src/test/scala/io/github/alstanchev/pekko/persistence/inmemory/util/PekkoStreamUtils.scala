@@ -28,7 +28,7 @@ import scala.collection.immutable._
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
-trait PekkoStreamUtils extends AnyFlatSpecLike with Matchers { _: Suite =>
+trait PekkoStreamUtils extends AnyFlatSpecLike with Matchers { this: Suite =>
   implicit def mat: Materializer
   implicit def system: ActorSystem
 

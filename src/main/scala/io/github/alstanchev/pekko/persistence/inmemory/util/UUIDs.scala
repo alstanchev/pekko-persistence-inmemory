@@ -8,7 +8,7 @@ import scala.compat.Platform
 import scala.util.Random
 
 object UUIDs {
-  implicit val TimeBasedUUIDOrdering = new Ordering[TimeBasedUUID] {
+  implicit val TimeBasedUUIDOrdering: Ordering[TimeBasedUUID] = new Ordering[TimeBasedUUID] {
     override def compare(x: TimeBasedUUID, y: TimeBasedUUID): Int = {
       val xuuid: UUID = x.value
       val yuuid: UUID = y.value

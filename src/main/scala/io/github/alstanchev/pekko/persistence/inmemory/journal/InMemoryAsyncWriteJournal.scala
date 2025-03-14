@@ -39,7 +39,7 @@ class InMemoryAsyncWriteJournal(config: Config) extends AsyncWriteJournal {
   implicit val system: ActorSystem = context.system
   implicit val ec: ExecutionContext = context.dispatcher
   implicit val mat: Materializer = ActorMaterializer()
-  val log: LoggingAdapter = Logging(system, this.getClass)
+  val log: LoggingAdapter = Logging(system, this.getClass)(org.apache.pekko.event.LogSource.fromClass)
   implicit val timeout: Timeout = Timeout(config.getDuration("ask-timeout", TimeUnit.SECONDS) -> SECONDS)
   val serialization = SerializationExtension(system)
 
