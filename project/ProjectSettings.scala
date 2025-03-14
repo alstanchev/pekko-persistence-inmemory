@@ -7,7 +7,8 @@ object ProjectSettings extends AutoPlugin {
   final val PekkoV = "1.1.3"
   final val scala212V = "2.12.18"
   final val scala213V = "2.13.11"
-  final val scalaV = scala213V
+  final val scala33V = "3.3.5"
+  final val scalaV = scala33V
   final val ScalazV = "7.3.8"
   final val ScalaTestV = "3.2.19"
   final val ScalaXmlV = "2.3.0"
@@ -24,7 +25,7 @@ object ProjectSettings extends AutoPlugin {
     startYear := Some(2023),
 
     scalaVersion := scalaV,
-    crossScalaVersions := Seq(scala212V, scala213V),
+    crossScalaVersions := Seq(scala212V, scala213V, scala33V),
     crossVersion := CrossVersion.binary,
 
     licenses := Seq(("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))),
@@ -86,7 +87,7 @@ object ProjectSettings extends AutoPlugin {
         "-language:implicitConversions",
         "-Ypartial-unification", // This option is specific to 2.12
         "-target:jvm-1.8",
-        "-Ydelambdafy:method"
+        "-Ydelambdafy:method",
       )
       case Some((2, 13)) => Seq(
         "-encoding",
@@ -99,6 +100,15 @@ object ProjectSettings extends AutoPlugin {
         "-language:implicitConversions",
         "-target:jvm-1.8",
         "-Ydelambdafy:method"
+      )
+      case Some((3, 3)) => Seq(
+        "-encoding",
+        "UTF-8",
+        "-deprecation",
+        "-feature",
+        "-unchecked",
+        "-language:higherKinds",
+        "-language:implicitConversions",
       )
       case _ => Seq()
     })
