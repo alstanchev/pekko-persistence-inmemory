@@ -16,8 +16,8 @@
 
 package io.github.alstanchev.pekko.persistence.inmemory.extension
 
-import org.apache.pekko.actor.{ Actor, ActorLogging, ActorRef }
 import io.github.alstanchev.pekko.persistence.inmemory.SnapshotEntry
+import org.apache.pekko.actor.{ Actor, ActorLogging, ActorRef }
 import scalaz.std.AllInstances._
 import scalaz.syntax.all._
 

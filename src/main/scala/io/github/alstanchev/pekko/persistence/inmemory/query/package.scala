@@ -19,12 +19,13 @@ package io.github.alstanchev.pekko.persistence.inmemory
 import org.apache.pekko.NotUsed
 import org.apache.pekko.persistence.query._
 import org.apache.pekko.stream.scaladsl.Source
+
 import scala.language.implicitConversions
 
 package object query {
   def toOldEnvelope(env2: EventEnvelope): EventEnvelope = env2 match {
     case EventEnvelope(Sequence(offset), persistenceId, sequenceNr, event) =>
-      EventEnvelope(Sequence(offset), persistenceId, sequenceNr, event)
+      EventEnvelope(Sequence(offset), persistenceId, sequenceNr, event, 0L, None)
   }
 
   implicit def newSrcToOldSrc(that: Source[EventEnvelope, NotUsed]): Source[EventEnvelope, NotUsed] =

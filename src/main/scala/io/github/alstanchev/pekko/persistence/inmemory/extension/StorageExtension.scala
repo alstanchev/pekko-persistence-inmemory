@@ -34,7 +34,7 @@ object StorageExtensionProvider extends ExtensionId[StorageExtension] with Exten
     storage
   }
 
-  override def lookup(): ExtensionId[_ <: Extension] = StorageExtensionProvider
+  override def lookup: ExtensionId[_ <: Extension] = StorageExtensionProvider
 
   /**
    * Java API

@@ -16,20 +16,20 @@
 
 package io.github.alstanchev.pekko.persistence.inmemory.journal
 
-import java.util.concurrent.TimeUnit
+import com.typesafe.config.Config
+import io.github.alstanchev.pekko.persistence.inmemory.JournalEntry
+import io.github.alstanchev.pekko.persistence.inmemory.extension.{ InMemoryJournalStorage, StorageExtensionProvider }
 import org.apache.pekko.actor.{ ActorRef, ActorSystem }
 import org.apache.pekko.event.{ Logging, LoggingAdapter }
 import org.apache.pekko.pattern.ask
-import io.github.alstanchev.pekko.persistence.inmemory.JournalEntry
-import io.github.alstanchev.pekko.persistence.inmemory.extension.{ InMemoryJournalStorage, StorageExtensionProvider }
 import org.apache.pekko.persistence.journal.{ AsyncWriteJournal, Tagged }
 import org.apache.pekko.persistence.{ AtomicWrite, PersistentRepr }
 import org.apache.pekko.serialization.SerializationExtension
+import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{ Flow, Sink, Source }
-import org.apache.pekko.stream.{ ActorMaterializer, Materializer }
 import org.apache.pekko.util.Timeout
-import com.typesafe.config.Config
 
+import java.util.concurrent.TimeUnit
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
@@ -38,8 +38,8 @@ import scala.util.{ Failure, Success, Try }
 class InMemoryAsyncWriteJournal(config: Config) extends AsyncWriteJournal {
   implicit val system: ActorSystem = context.system
   implicit val ec: ExecutionContext = context.dispatcher
-  implicit val mat: Materializer = ActorMaterializer()
-  val log: LoggingAdapter = Logging(system, this.getClass)
+  implicit val mat: Materializer = Materializer.matFromSystem(system)
+  val log: LoggingAdapter = Logging(system, this.getClass)(org.apache.pekko.event.LogSource.fromClass)
   implicit val timeout: Timeout = Timeout(config.getDuration("ask-timeout", TimeUnit.SECONDS) -> SECONDS)
   val serialization = SerializationExtension(system)
 
@@ -62,7 +62,7 @@ class InMemoryAsyncWriteJournal(config: Config) extends AsyncWriteJournal {
 
   val serializer = Flow[AtomicWrite].flatMapConcat { write =>
     Source(write.payload).flatMapConcat { repr =>
-      Source.fromFuture(Future.fromTry(serialize(repr)))
+      Source.future(Future.fromTry(serialize(repr)))
         .map(toJournalEntry(_, payload(repr)))
     }.fold(Try(List.empty[JournalEntry])) {
       case (Success(xs), e) => Success(xs :+ e)

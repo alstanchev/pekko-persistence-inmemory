@@ -16,29 +16,29 @@
 
 package io.github.alstanchev.pekko.persistence.inmemory.snapshot
 
-import java.util.concurrent.TimeUnit
+import com.typesafe.config.Config
+import io.github.alstanchev.pekko.persistence.inmemory.SnapshotEntry
+import io.github.alstanchev.pekko.persistence.inmemory.extension.InMemorySnapshotStorage._
+import io.github.alstanchev.pekko.persistence.inmemory.extension.StorageExtensionProvider
 import org.apache.pekko.actor.{ ActorRef, ActorSystem }
 import org.apache.pekko.pattern.ask
 import org.apache.pekko.persistence.serialization.Snapshot
 import org.apache.pekko.persistence.snapshot.SnapshotStore
 import org.apache.pekko.persistence.{ SelectedSnapshot, SnapshotMetadata, SnapshotSelectionCriteria }
 import org.apache.pekko.serialization.SerializationExtension
-import org.apache.pekko.stream.{ ActorMaterializer, Materializer }
+import org.apache.pekko.stream.Materializer
 import org.apache.pekko.util.Timeout
-import com.typesafe.config.Config
-import io.github.alstanchev.pekko.persistence.inmemory.SnapshotEntry
-import io.github.alstanchev.pekko.persistence.inmemory.extension.InMemorySnapshotStorage._
-import io.github.alstanchev.pekko.persistence.inmemory.extension.StorageExtensionProvider
-
-import scala.concurrent.duration._
-import scala.concurrent.{ ExecutionContext, Future }
 import scalaz.OptionT
 import scalaz.std.AllInstances._
+
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration._
+import scala.concurrent.{ ExecutionContext, Future }
 
 class InMemorySnapshotStore(config: Config) extends SnapshotStore {
   implicit val system: ActorSystem = context.system
   implicit val ec: ExecutionContext = context.dispatcher
-  implicit val mat: Materializer = ActorMaterializer()
+  implicit val mat: Materializer = Materializer.matFromSystem(system)
   implicit val timeout: Timeout = Timeout(config.getDuration("ask-timeout", TimeUnit.SECONDS) -> SECONDS)
   val serialization = SerializationExtension(system)
 
@@ -57,7 +57,6 @@ class InMemorySnapshotStore(config: Config) extends SnapshotStore {
         (snapshots ? SnapshotForMaxSequenceNr(persistenceId, maxSequenceNr)).mapTo[Option[SnapshotEntry]]
       case SnapshotSelectionCriteria(maxSequenceNr, maxTimestamp, _, _) =>
         (snapshots ? SnapshotForMaxSequenceNrAndMaxTimestamp(persistenceId, maxSequenceNr, maxTimestamp)).mapTo[Option[SnapshotEntry]]
-      case _ => Future.successful(None)
     }
 
     val result = for {
@@ -85,6 +84,5 @@ class InMemorySnapshotStore(config: Config) extends SnapshotStore {
       (snapshots ? DeleteUpToMaxSequenceNr(persistenceId, maxSequenceNr)).map(_ => ())
     case SnapshotSelectionCriteria(maxSequenceNr, maxTimestamp, _, _) =>
       (snapshots ? DeleteUpToMaxSequenceNrAndMaxTimestamp(persistenceId, maxSequenceNr, maxTimestamp)).map(_ => ())
-    case _ => Future.successful(())
   }
 }

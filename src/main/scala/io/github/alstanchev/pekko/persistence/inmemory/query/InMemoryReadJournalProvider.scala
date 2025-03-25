@@ -22,7 +22,11 @@ import com.typesafe.config.Config
 import io.github.alstanchev.pekko.persistence.inmemory.extension.StorageExtensionProvider
 
 class InMemoryReadJournalProvider(system: ExtendedActorSystem, config: Config) extends ReadJournalProvider {
-  override val scaladslReadJournal: scaladsl.InMemoryReadJournal = new scaladsl.InMemoryReadJournal(config, StorageExtensionProvider(system).journalStorage(config))(system)
+  private val srj = new scaladsl.InMemoryReadJournal(config, StorageExtensionProvider(system).journalStorage(config))(system)
 
-  override val javadslReadJournal: javadsl.InMemoryReadJournal = new javadsl.InMemoryReadJournal(scaladslReadJournal)
+  private val jrj = new javadsl.InMemoryReadJournal(srj)
+
+  override def scaladslReadJournal(): scaladsl.InMemoryReadJournal = srj
+
+  override def javadslReadJournal(): javadsl.InMemoryReadJournal = jrj
 }
