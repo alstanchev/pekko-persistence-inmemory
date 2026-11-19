@@ -1,0 +1,98 @@
+name: Publish snapshot
+run-name: Publish snapshot ${{ inputs.version }} from ${{ inputs.ref || github.ref_name }}
+
+# Publishes a -SNAPSHOT version to the Sonatype Central Portal snapshot repository
+# (https://central.sonatype.com/repository/maven-snapshots/).
+#
+# Run it from the default branch and set `ref` to build another branch, tag or commit,
+# e.g. ref = feature/pekko-2.0.0, version = 2.0.0-SNAPSHOT.
+#
+# Requirements:
+# - SNAPSHOTs are enabled for the io.github.alstanchev namespace in the Central Portal
+# - the SONATYPE_USERNAME / SONATYPE_PASSWORD secrets hold a Central Portal user token
+# - the code being built publishes to the Central Portal (sbt >= 1.11, see project/PublishSettings.scala)
+#
+# Snapshots are not signed (Central does not require it) and are removed by Sonatype after 90 days.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Snapshot version to publish, must end with -SNAPSHOT (e.g. 2.0.0-SNAPSHOT)'
+        required: true
+        type: string
+      ref:
+        description: 'Branch, tag or commit SHA to build. Empty = the branch this workflow is run from'
+        required: false
+        type: string
+      test:
+        description: 'Run the tests before publishing'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-snapshot-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  publish-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Validate snapshot version
+        run: |
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)*-SNAPSHOT$ ]]; then
+            echo "::error::Version '$VERSION' must look like X.Y.Z-SNAPSHOT (e.g. 2.0.0-SNAPSHOT)"
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Check that the build publishes to the Central Portal
+        run: |
+          if ! grep -q 'central.sonatype.com/repository/maven-snapshots' project/PublishSettings.scala; then
+            echo "::error::The checked out code ($(git rev-parse --short HEAD)) does not publish snapshots to the Sonatype Central Portal. Build a branch that contains the Central Portal publishing setup."
+            exit 1
+          fi
+          echo "Building $(git rev-parse --short HEAD) as $VERSION"
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: sbt
+
+      - name: Set up sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Test
+        if: ${{ inputs.test }}
+        run: sbt -batch "set version := \"$VERSION\"" +test
+
+      - name: Publish snapshot
+        run: sbt -batch "set version := \"$VERSION\"" +publish
+        env:
+          # Sonatype Central Portal user token; sbt >= 1.11 picks these up for central.sonatype.com
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+
+      - name: Summary
+        run: |
+          {
+            echo "### Published \`$VERSION\` ($(git rev-parse --short HEAD))"
+            echo
+            echo '```scala'
+            echo 'resolvers += "Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/"'
+            echo "libraryDependencies += \"io.github.alstanchev\" %% \"pekko-persistence-inmemory\" % \"$VERSION\""
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
