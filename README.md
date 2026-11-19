@@ -8,22 +8,29 @@
 [pekko-persistence-inmemory](https://github.com/alstanchev/pekko-persistence-inmemory) is a plugin for pekko-persistence that stores journal and snapshot messages in memory, which is very useful when testing persistent actors, persistent FSM and pekko cluster.
 
 ## Installation
-```text
-// the library is available in OSSSonatype and MavenCentral repository
+The library is available on [Maven Central](https://central.sonatype.com/search?q=pekko-persistence-inmemory&namespace=io.github.alstanchev).
 
-    <dependency>
-        <groupId>com.github.alstanchev</groupId>
-        <artifactId>pekko-persistence-inmemory_2.13</artifactId>
-        <version>1.1.1</version>
-    </dependency>
+```xml
+<dependency>
+    <groupId>io.github.alstanchev</groupId>
+    <artifactId>pekko-persistence-inmemory_2.13</artifactId>
+    <version>2.0.0</version>
+</dependency>
 ```
-
 
 ```scala
-// the library is available in OSSSonatype and MavenCentral repository
-
-libraryDependencies += "io.github.alstanchev" %% "pekko-persistence-inmemory" % "1.1.1"
+libraryDependencies += "io.github.alstanchev" %% "pekko-persistence-inmemory" % "2.0.0"
 ```
+
+### Compatibility
+
+Pekko 2.x is not binary compatible with Pekko 1.x, so pick the plugin version that matches your Pekko version:
+
+| pekko-persistence-inmemory | Apache Pekko | Scala            | Java |
+|----------------------------|--------------|------------------|------|
+| 2.0.x                      | 2.0.x        | 2.13, 3.3        | 17+  |
+| 1.3.x                      | 1.1.x        | 2.12, 2.13, 3.3  | 8+   |
+| 1.2.x                      | 1.0.x, 1.1.x | 2.12, 2.13       | 8+   |
 
 ## Contribution policy
 Contributions via GitHub pull requests are gladly accepted from their original author. Along with any pull requests, please state that the contribution is your original work and that you license the work to the project under the project's open source license. Whether or not you state this explicitly, by submitting any copyrighted material via pull request, email, or other means you agree to license the material under the project's open source license and warrant that you have the legal authority to do so.
@@ -328,6 +335,22 @@ inmemory-storage {
   property-keys = ["keyspace"]
 }
 ```
+
+### 2.0.0 (unreleased)
+ - Update to [Apache Pekko 2.0.0](https://pekko.apache.org/docs/pekko/current/release-notes/releases-2.0.html)
+ - Requires Java 17+ (Pekko 2.x minimum)
+ - Scala 2.13.18 and 3.3.9; Scala 2.12 is no longer supported (dropped by Pekko 2.x)
+ - Journal passes the new Pekko 2.0 TCK checks for replay windows spanning a deleted prefix
+ - Publishing moved to the Sonatype Central Portal
+
+### 1.3.0 (2025-03-26)
+ - Add Scala 3 (3.3.x) cross build
+
+### 1.2.1 (2025-01-13)
+ - Update to pekko 1.1.3
+
+### 1.2.0 (2025-01-06)
+ - Release via GitHub Actions workflows
 
 ### 1.1.1 (2024-08-13)
  - Update to work with pekko 1.0.3
