@@ -18,11 +18,8 @@
 addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.3")
 
 // enable updating file headers eg. for copyright
-addSbtPlugin("de.heikoseeberger" % "sbt-header" % "4.0.0")
+addSbtPlugin("com.github.sbt" % "sbt-header" % "5.11.0")
 
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.11.0")
-
-//addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.6")
-
-// release and deploy to sonatype
-addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
+// sign artifacts for Maven Central.
+// Publishing itself uses sbt's built-in Sonatype Central Portal support (sbt >= 1.11: localStaging, sonaRelease)
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
