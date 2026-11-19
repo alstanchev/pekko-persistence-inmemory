@@ -19,13 +19,16 @@ package io.github.alstanchev.pekko.persistence.inmemory.journal
 import org.apache.pekko.persistence.CapabilityFlag
 import org.apache.pekko.persistence.journal.JournalPerfSpec
 import com.typesafe.config.ConfigFactory
-import org.scalatest.Ignore
 
 import scala.concurrent.duration._
 
-@Ignore
 class InMemoryJournalPerfSpec extends JournalPerfSpec(ConfigFactory.load("application.conf")) {
   override protected def supportsRejectingNonSerializableObjects: CapabilityFlag = true
 
-  override def awaitDurationMillis: Long = 60.minutes.toMillis
+  // TCK capability added in Pekko 2.0: replay windows whose bounds touch a deleted prefix
+  override protected def supportsReplayWindowSpanningDeletedPrefix: CapabilityFlag = true
+
+  // 10k events per measurement take well under a second in memory; keep a generous margin for slow CI runners
+  // but fail fast instead of hanging the build (this was 60 minutes when the spec was disabled)
+  override def awaitDurationMillis: Long = 1.minute.toMillis
 }
