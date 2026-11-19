@@ -1,2 +1,3 @@
 #!/bin/bash
-sbt clean test
+# compile and test against all crossScalaVersions
+sbt -batch clean +test

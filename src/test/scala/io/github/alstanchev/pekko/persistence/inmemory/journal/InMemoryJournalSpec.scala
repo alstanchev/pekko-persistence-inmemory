@@ -22,4 +22,7 @@ import com.typesafe.config.{ Config, ConfigFactory }
 
 class InMemoryJournalSpec extends JournalSpec(ConfigFactory.load("application.conf")) {
   override protected def supportsRejectingNonSerializableObjects: CapabilityFlag = true
+
+  // TCK capability added in Pekko 2.0: replay windows whose bounds touch a deleted prefix
+  override protected def supportsReplayWindowSpanningDeletedPrefix: CapabilityFlag = true
 }

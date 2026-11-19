@@ -20,7 +20,7 @@ import com.typesafe.config.Config
 import org.apache.pekko.actor._
 import org.apache.pekko.serialization.SerializationExtension
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 private object StorageExtensionByProperty {
   final val PropertyKeysKey = "inmemory-storage.property-keys"
