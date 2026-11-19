@@ -12,6 +12,7 @@ object ProjectSettings extends AutoPlugin {
   final val ScalaTestV = "3.2.19"
   final val ScalaXmlV = "2.3.0"
   final val LogbackV = "1.5.38"
+  final val JUnitInterfaceV = "0.13.3"
   // Pekko 2.x requires Java 17+
   final val JavaReleaseV = "17"
 
@@ -28,9 +29,6 @@ object ProjectSettings extends AutoPlugin {
     scalaVersion := scalaV,
     crossScalaVersions := Seq(scala213V, scala33V),
     crossVersion := CrossVersion.binary,
-
-    licenses := Seq(("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.txt"))),
-
   ) ++ compilerSettings ++ resolverSettings ++ scalariFormSettings ++ librarySettings ++ testSettings
 
   lazy val librarySettings: Seq[Def.Setting[Seq[ModuleID]]] = Seq(
@@ -46,6 +44,8 @@ object ProjectSettings extends AutoPlugin {
     libraryDependencies += "org.apache.pekko" %% "pekko-testkit" % PekkoV % Test,
     libraryDependencies += "org.scalatest" %% "scalatest" % ScalaTestV % Test,
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % ScalaXmlV % Test,
+    // lets sbt run the JUnit tests under src/test/java
+    libraryDependencies += "com.github.sbt" % "junit-interface" % JUnitInterfaceV % Test,
 
   )
 
@@ -54,7 +54,9 @@ object ProjectSettings extends AutoPlugin {
     Test / logBuffered := false,
     Test / parallelExecution := false,
     // show full stack traces and test case durations
-    Test / testOptions += Tests.Argument("-oDF"),
+    Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
+    // log each JUnit test and its result
+    Test / testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-a"),
   )
 
   lazy val scalariFormSettings = Seq(

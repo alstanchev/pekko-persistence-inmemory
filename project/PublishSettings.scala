@@ -22,7 +22,7 @@ object PublishSettings extends AutoPlugin {
     organization := "io.github.alstanchev", // This sets the groupId
     name := "pekko-persistence-inmemory", // This sets the artifactId base
     homepage := Some(url(s"https://github.com/$GithubOwner/$GithubRepo")),
-    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := List("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(
       ScmInfo(
         url(s"https://github.com/$GithubOwner/$GithubRepo"),

@@ -40,6 +40,9 @@ abstract class QueryTestSpec(config: String = "application.conf") extends TestSp
 
   final val ExpectNextTimeout = 10.second
 
+  /** How long `persist` waits for the journal to acknowledge writes */
+  def writeTimeout: FiniteDuration = 1.hour
+
   protected var senderProbe: TestProbe = _
   private var _writerUuid: String = _
 
@@ -136,9 +139,9 @@ abstract class QueryTestSpec(config: String = "application.conf") extends TestSp
     val timestamp = System.currentTimeMillis
     val metadata = Option.empty
 
-    probe.expectMsg(1.hour, WriteMessagesSuccessful)
+    probe.expectMsg(writeTimeout, WriteMessagesSuccessful)
     fromSnr to toSnr foreach { seqNo =>
-      probe.expectMsgPF(1.hour) {
+      probe.expectMsgPF(writeTimeout) {
         case WriteMessageSuccess(PersistentImpl(payload, `seqNo`, `pid`, _, _, `sender`, `writerUuid`, timestamp, metadata), _) =>
           val id = s"a-$seqNo"
           payload should matchPattern {

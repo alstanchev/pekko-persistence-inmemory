@@ -29,6 +29,13 @@ jobs:
   publish-artifacts:
     runs-on: ubuntu-latest
     steps:
+      # releases are irreversible on Maven Central: only publish reviewed code that is merged to master
+      - name: Require master branch
+        if: ${{ github.ref != 'refs/heads/master' }}
+        run: |
+          echo "::error::Releases must be run from master, not $GITHUB_REF. Merge the release branch first."
+          exit 1
+
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -48,10 +55,20 @@ jobs:
             echo "::error::Input release '$RELEASE_INPUT' does not match version.sbt '$VERSION'"
             exit 1
           fi
+          # an existing tag means this version is already released; fail before anything is built or uploaded.
+          # Tags are available locally because the checkout uses fetch-depth: 0.
+          if [ "$PUBLISH" = "true" ] || [ "$TAG" = "true" ]; then
+            if git rev-parse -q --verify "refs/tags/v$VERSION" > /dev/null; then
+              echo "::error::Tag v$VERSION already exists, so $VERSION is already released. Run the 'Prepare release' workflow with a new version first."
+              exit 1
+            fi
+          fi
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "Releasing version $VERSION"
         env:
           RELEASE_INPUT: ${{ github.event.inputs.release }}
+          PUBLISH: ${{ github.event.inputs.publish }}
+          TAG: ${{ github.event.inputs.tag }}
 
       - name: Import GPG key
         if: ${{ github.event.inputs.publish == 'true' }}
