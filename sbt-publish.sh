@@ -1,3 +1,5 @@
+#!/bin/bash
+set -euo pipefail
 # Copyright 2016 Dennis Vriend
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,4 +15,7 @@
 # limitations under the License.
 #
 
-sbt clean +publishSigned
+# Stage signed artifacts for all Scala versions locally (target/sona-staging),
+# then upload the bundle to the Sonatype Central Portal and release it.
+# Requires SONATYPE_USERNAME / SONATYPE_PASSWORD (Central Portal user token) and PGP_PASSPHRASE.
+sbt -batch clean +publishSigned sonaRelease

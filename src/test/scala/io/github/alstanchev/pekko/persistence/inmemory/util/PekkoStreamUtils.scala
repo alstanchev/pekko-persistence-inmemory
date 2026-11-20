@@ -34,7 +34,7 @@ trait PekkoStreamUtils extends AnyFlatSpecLike with Matchers { this: Suite =>
 
   implicit class SourceOps[A, M](src: Source[A, M]) {
     def testProbe(f: TestSubscriber.Probe[A] => Unit): Unit =
-      f(src.runWith(TestSink.probe(system)))
+      f(src.runWith(TestSink[A]()(system)))
   }
 
   implicit class TestProbeOps[A](tp: TestSubscriber.Probe[A]) {
@@ -45,5 +45,5 @@ trait PekkoStreamUtils extends AnyFlatSpecLike with Matchers { this: Suite =>
     f(Source.fromIterator(() => Iterator from start))
 
   def fromCollectionProbe[A](xs: Seq[A])(f: TestSubscriber.Probe[A] => Unit): Unit =
-    f(Source(xs).runWith(TestSink.probe(system)))
+    f(Source(xs).runWith(TestSink[A]()(system)))
 }

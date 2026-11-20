@@ -8,22 +8,65 @@
 [pekko-persistence-inmemory](https://github.com/alstanchev/pekko-persistence-inmemory) is a plugin for pekko-persistence that stores journal and snapshot messages in memory, which is very useful when testing persistent actors, persistent FSM and pekko cluster.
 
 ## Installation
-```text
-// the library is available in OSSSonatype and MavenCentral repository
+The library is available on [Maven Central](https://central.sonatype.com/search?q=pekko-persistence-inmemory&namespace=io.github.alstanchev).
 
-    <dependency>
-        <groupId>com.github.alstanchev</groupId>
-        <artifactId>pekko-persistence-inmemory_2.13</artifactId>
-        <version>1.1.1</version>
-    </dependency>
+```xml
+<dependency>
+    <groupId>io.github.alstanchev</groupId>
+    <artifactId>pekko-persistence-inmemory_2.13</artifactId>
+    <version>2.0.0</version>
+</dependency>
 ```
-
 
 ```scala
-// the library is available in OSSSonatype and MavenCentral repository
-
-libraryDependencies += "io.github.alstanchev" %% "pekko-persistence-inmemory" % "1.1.1"
+libraryDependencies += "io.github.alstanchev" %% "pekko-persistence-inmemory" % "2.0.0"
 ```
+
+### Compatibility
+
+Pekko 2.x is not binary compatible with Pekko 1.x, so pick the plugin version that matches your Pekko version:
+
+| pekko-persistence-inmemory | Apache Pekko | Scala            | Java |
+|----------------------------|--------------|------------------|------|
+| 2.0.x                      | 2.0.x        | 2.13, 3.3        | 17+  |
+| 1.3.x                      | 1.1.x        | 2.12, 2.13, 3.3  | 8+   |
+| 1.2.x                      | 1.0.x, 1.1.x | 2.12, 2.13       | 8+   |
+
+### Snapshots
+
+Snapshot versions such as `2.0.0-SNAPSHOT` are published to the
+[Sonatype Central snapshot repository](https://central.sonatype.com/repository/maven-snapshots/), not to Maven Central,
+so they do not appear in the Maven Central search. To use one, add the snapshot repository to your build:
+
+```scala
+resolvers += "Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/"
+
+libraryDependencies += "io.github.alstanchev" %% "pekko-persistence-inmemory" % "2.0.0-SNAPSHOT"
+```
+
+```xml
+<repositories>
+    <repository>
+        <id>central-snapshots</id>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        <releases><enabled>false</enabled></releases>
+        <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>io.github.alstanchev</groupId>
+    <artifactId>pekko-persistence-inmemory_2.13</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+A snapshot can be replaced at any time, and Sonatype deletes snapshots after 90 days, so use them for testing only.
+Maintainers publish snapshots with the manual "Publish snapshot" GitHub Actions workflow.
+
+The snapshot repository serves no `maven-metadata.xml`, so Maven does not notice a re-published snapshot and keeps
+using its cached copy, even with `-U`. To pick up a new one, delete
+`~/.m2/repository/io/github/alstanchev/pekko-persistence-inmemory_2.13/2.0.0-SNAPSHOT` (or the `_3` directory) first.
 
 ## Contribution policy
 Contributions via GitHub pull requests are gladly accepted from their original author. Along with any pull requests, please state that the contribution is your original work and that you license the work to the project under the project's open source license. Whether or not you state this explicitly, by submitting any copyrighted material via pull request, email, or other means you agree to license the material under the project's open source license and warrant that you have the legal authority to do so.
@@ -75,20 +118,22 @@ inmemory-read-journal {
 It is possible to manually clear the journal and snapshot storage, for example:
 
 ```scala
-import io.github.alstanchev.pekko.persistence.inmemory.extension.{ InMemoryJournalStorage, InMemorySnapshotStorage, StorageExtension }
+import io.github.alstanchev.pekko.persistence.inmemory.extension.{ InMemoryJournalStorage, InMemorySnapshotStorage, StorageExtensionProvider }
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.testkit.TestProbe
 import org.scalatest.{ BeforeAndAfterEach, Suite }
 
-trait InMemoryCleanup extends BeforeAndAfterEach { _: Suite =>
+trait InMemoryCleanup extends BeforeAndAfterEach { this: Suite =>
 
   implicit def system: ActorSystem
 
   override protected def beforeEach(): Unit = {
     val tp = TestProbe()
-    tp.send(StorageExtension(system).journalStorage, InMemoryJournalStorage.ClearJournal)
+    val storage = StorageExtensionProvider(system)
+    val config = system.settings.config
+    tp.send(storage.journalStorage(config), InMemoryJournalStorage.ClearJournal)
     tp.expectMsg(org.apache.pekko.actor.Status.Success(""))
-    tp.send(StorageExtension(system).snapshotStorage, InMemorySnapshotStorage.ClearSnapshots)
+    tp.send(storage.snapshotStorage(config), InMemorySnapshotStorage.ClearSnapshots)
     tp.expectMsg(org.apache.pekko.actor.Status.Success(""))
     super.beforeEach()
   }
@@ -98,21 +143,33 @@ trait InMemoryCleanup extends BeforeAndAfterEach { _: Suite =>
 From Java:
 
 ```java
-import org.apache.pekko.actor.ActorRef
-import io.github.alstanchev.pekko.persistence.inmemory.InMemoryJournalStorage
-import io.github.alstanchev.pekko.persistence.inmemory.InMemorySnapshotStorage
-        
+import org.apache.pekko.actor.ActorRef;
+import org.apache.pekko.actor.ActorSystem;
+import org.apache.pekko.actor.Status;
+import org.apache.pekko.testkit.TestProbe;
 
-    ActorRef actorRef = extension.journalStorage();
-    
-    InMemoryJournalStorage.ClearJournal clearJournal = InMemoryJournalStorage.clearJournal();
-    tp.send(actorRef, clearJournal);
-    tp.expectMsg(new Status.Success(""));
-    
-    InMemorySnapshotStorage.ClearSnapshots clearSnapshots = InMemorySnapshotStorage.clearSnapshots();
-    tp.send(actorRef, clearSnapshots);
-    tp.expectMsg(new Status.Success(""));
+import io.github.alstanchev.pekko.persistence.inmemory.extension.InMemoryJournalStorage;
+import io.github.alstanchev.pekko.persistence.inmemory.extension.InMemorySnapshotStorage;
+import io.github.alstanchev.pekko.persistence.inmemory.extension.StorageExtension;
+import io.github.alstanchev.pekko.persistence.inmemory.extension.StorageExtensionProvider;
+
+ActorSystem system = ActorSystem.create();
+TestProbe tp = new TestProbe(system);
+StorageExtension extension = StorageExtensionProvider.get(system);
+
+ActorRef journal = extension.journalStorage(system.settings().config());
+tp.send(journal, InMemoryJournalStorage.clearJournal());
+tp.expectMsg(new Status.Success(""));
+
+ActorRef snapshots = extension.snapshotStorage(system.settings().config());
+tp.send(snapshots, InMemorySnapshotStorage.clearSnapshots());
+tp.expectMsg(new Status.Success(""));
 ```
+
+The journal storage actor answers only `ClearJournal` and the snapshot storage actor only `ClearSnapshots`, so send
+each message to its own actor. The default storage ignores the config argument. With `StorageExtensionByProperty`
+(see [Storage extension](#storage-extension)), pass the config of the journal or snapshot plugin whose storage you
+want to clear.
 
 ## offset-mode
 pekko-persistence-query introduces `org.apache.pekko.persistence.query.Offset`, an ADT that defines `org.apache.pekko.persistence.query.NoOffset`,
@@ -136,7 +193,7 @@ write plugin name (defaults to the `inmemory-journal`).
 ## Refresh Interval
 The async query API uses polling to query the journal for new events. The refresh interval can be configured
 e.g. "1s" so that the journal will be polled every 1 second. This setting is global for each async query, so
-the _allPersistenceId_, _eventsByTag_ and _eventsByPersistenceId_ queries.
+the _persistenceIds_, _eventsByTag_ and _eventsByPersistenceId_ queries.
 
 ## Max Buffer Size
 When an async query is started, a number of events will be buffered and will use memory when not consumed by 
@@ -151,7 +208,7 @@ import org.apache.pekko.persistence.query.scaladsl._
 lazy val readJournal = PersistenceQuery(system).readJournalFor("inmemory-read-journal")
  .asInstanceOf[ReadJournal
     with CurrentPersistenceIdsQuery
-    with AllPersistenceIdsQuery
+    with PersistenceIdsQuery
     with CurrentEventsByPersistenceIdQuery
     with CurrentEventsByTagQuery
     with EventsByPersistenceIdQuery
@@ -163,7 +220,7 @@ The `ReadJournal` is retrieved via the `org.apache.pekko.persistence.query.Persi
 
 ```java
 import org.apache.pekko.persistence.query.PersistenceQuery
-import io.github.alstanchev.pekko.persistence.inmemory.query.journal.javadsl.InMemoryReadJournal
+import io.github.alstanchev.pekko.persistence.inmemory.query.javadsl.InMemoryReadJournal
 
 final InMemoryReadJournal readJournal = PersistenceQuery.get(system).getReadJournalFor(InMemoryReadJournal.class, InMemoryReadJournal.Identifier());
 ```
@@ -171,28 +228,28 @@ final InMemoryReadJournal readJournal = PersistenceQuery.get(system).getReadJour
 ## Persistence Query
 The plugin supports the following queries:
 
-## AllPersistenceIdsQuery and CurrentPersistenceIdsQuery
-`allPersistenceIds` and `currentPersistenceIds` are used for retrieving all persistenceIds of all persistent actors.
+## PersistenceIdsQuery and CurrentPersistenceIdsQuery
+`persistenceIds` and `currentPersistenceIds` are used for retrieving all persistenceIds of all persistent actors.
 
 ```scala
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.{Materializer, ActorMaterializer}
+import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.persistence.query.PersistenceQuery
-import io.github.alstanchev.pekko.persistence.inmemory.query.journal.scaladsl.InMemoryReadJournal
+import io.github.alstanchev.pekko.persistence.inmemory.query.scaladsl.InMemoryReadJournal
 
 implicit val system: ActorSystem = ActorSystem()
-implicit val mat: Materializer = ActorMaterializer()(system)
+implicit val mat: Materializer = Materializer(system)
 val readJournal: InMemoryReadJournal = PersistenceQuery(system).readJournalFor[InMemoryReadJournal](InMemoryReadJournal.Identifier)
 
-val willNotCompleteTheStream: Source[String, NotUsed] = readJournal.allPersistenceIds()
+val willNotCompleteTheStream: Source[String, NotUsed] = readJournal.persistenceIds()
 
 val willCompleteTheStream: Source[String, NotUsed] = readJournal.currentPersistenceIds()
 ```
 
 The returned event stream is unordered, and you can expect different order for multiple executions of the query.
 
-When using the `allPersistenceIds` query, the stream is not completed when it reaches the end of the currently used persistenceIds, 
+When using the `persistenceIds` query, the stream is not completed when it reaches the end of the currently used persistenceIds, 
 but it continues to push new persistenceIds when new persistent actors are created. 
 
 When using the `currentPersistenceIds` query, the stream is completed when the end of the current list of persistenceIds is reached,
@@ -206,17 +263,17 @@ a specific PersistentActor identified by persistenceId.
 
 ```scala
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.{Materializer, ActorMaterializer}
+import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.persistence.query.scaladsl._
 
 implicit val system: ActorSystem = ActorSystem()
-implicit val mat: Materializer = ActorMaterializer()(system)
+implicit val mat: Materializer = Materializer(system)
 
 lazy val readJournal = PersistenceQuery(system).readJournalFor("inmemory-read-journal")
  .asInstanceOf[ReadJournal
     with CurrentPersistenceIdsQuery
-    with AllPersistenceIdsQuery
+    with PersistenceIdsQuery
     with CurrentEventsByPersistenceIdQuery
     with CurrentEventsByTagQuery
     with EventsByPersistenceIdQuery
@@ -239,17 +296,17 @@ The stream is completed with failure if there is a failure in executing the quer
 
 ```scala
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.stream.{Materializer, ActorMaterializer}
+import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.Source
 import org.apache.pekko.persistence.query.scaladsl._
 
 implicit val system: ActorSystem = ActorSystem()
-implicit val mat: Materializer = ActorMaterializer()(system)
+implicit val mat: Materializer = Materializer(system)
 
 lazy val readJournal = PersistenceQuery(system).readJournalFor("inmemory-read-journal")
  .asInstanceOf[ReadJournal
     with CurrentPersistenceIdsQuery
-    with AllPersistenceIdsQuery
+    with PersistenceIdsQuery
     with CurrentEventsByPersistenceIdQuery
     with CurrentEventsByTagQuery
     with EventsByPersistenceIdQuery
@@ -328,6 +385,22 @@ inmemory-storage {
   property-keys = ["keyspace"]
 }
 ```
+
+### 2.0.0 (unreleased)
+ - Update to [Apache Pekko 2.0.0](https://pekko.apache.org/docs/pekko/current/release-notes/releases-2.0.html)
+ - Requires Java 17+ (Pekko 2.x minimum)
+ - Scala 2.13.18 and 3.3.9; Scala 2.12 is no longer supported (dropped by Pekko 2.x)
+ - Journal passes the new Pekko 2.0 TCK checks for replay windows spanning a deleted prefix
+ - Publishing moved to the Sonatype Central Portal
+
+### 1.3.0 (2025-03-26)
+ - Add Scala 3 (3.3.x) cross build
+
+### 1.2.1 (2025-01-13)
+ - Update to pekko 1.1.3
+
+### 1.2.0 (2025-01-06)
+ - Release via GitHub Actions workflows
 
 ### 1.1.1 (2024-08-13)
  - Update to work with pekko 1.0.3

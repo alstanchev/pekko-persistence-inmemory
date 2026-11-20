@@ -35,5 +35,5 @@ package object inmemory {
 
   implicit def seqToVector[A](xs: Seq[A]): Vector[A] = xs.toVector
   implicit def setToVector[A](xs: Set[A]): Vector[A] = xs.toVector
-  implicit def mapSeqToVector[K, V](map: Map[K, Seq[V]]): Map[K, Vector[V]] = map.mapValues(_.toVector).toMap
+  implicit def mapSeqToVector[K, V](map: Map[K, Seq[V]]): Map[K, Vector[V]] = map.view.mapValues(_.toVector).toMap
 }

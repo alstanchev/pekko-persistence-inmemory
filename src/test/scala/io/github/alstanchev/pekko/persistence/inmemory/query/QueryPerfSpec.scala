@@ -18,10 +18,14 @@ package io.github.alstanchev.pekko.persistence.inmemory.query
 
 import org.apache.pekko.persistence.inmemory.query.QueryTestSpec
 import org.apache.pekko.stream.scaladsl.Sink
-import org.scalatest.Ignore
 
-@Ignore
+import scala.concurrent.duration._
+
 class QueryPerfSpec extends QueryTestSpec {
+  // 100k events take a few seconds in memory; fail fast instead of waiting for the inherited 60 minute defaults
+  override implicit val pc: PatienceConfig = PatienceConfig(timeout = 2.minutes, interval = 300.millis)
+  override def writeTimeout: FiniteDuration = 2.minutes
+
   def writeToJournal(numberOfEvents: Int): Unit = {
     val start = java.lang.System.currentTimeMillis()
     persist(1, numberOfEvents, "pid", "foo")

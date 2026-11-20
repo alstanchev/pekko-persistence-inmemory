@@ -10,14 +10,22 @@ on:
         type: string
 permissions:
   contents: write
-  pull-requests: write
   
 jobs:
   release:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    env:
+      RELEASE: ${{ github.event.inputs.release }}
     steps:
+      - name: Validate release version
+        run: |
+          if ! [[ "$RELEASE" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Release version '$RELEASE' is not of the form X.Y.Z or X.Y.Z-suffix"
+            exit 1
+          fi
+
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -28,14 +36,13 @@ jobs:
 
       - name: Update version.sbt
         run: |
-          echo "version := \"${{ github.event.inputs.release }}\"" > version.sbt
+          echo "version := \"$RELEASE\"" > version.sbt
           echo "cat version.sbt"
           cat version.sbt
 
-
       - name: Create release branch and commit changes
         run: |
-          git checkout -b release/${{ github.event.inputs.release }}
+          git checkout -b "release/$RELEASE"
           git add version.sbt
-          git commit -m "Update version to ${{ github.event.inputs.release }}"
-          git push origin release/${{ github.event.inputs.release }}
+          git commit -m "Update version to $RELEASE"
+          git push origin "release/$RELEASE"
