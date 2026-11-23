@@ -32,6 +32,36 @@ Pekko 2.x is not binary compatible with Pekko 1.x, so pick the plugin version th
 | 1.3.x                      | 1.1.x        | 2.12, 2.13, 3.3  | 8+   |
 | 1.2.x                      | 1.0.x, 1.1.x | 2.12, 2.13       | 8+   |
 
+### Pekko cluster and remoting on Java 17+
+
+The plugin itself needs no JVM flags. But if your tests also start Pekko cluster or remoting (Artery), Pekko 2.0.0
+pulls in Agrona 2.7.0, which accesses `jdk.internal.misc.Unsafe`. Without the following JVM flag the actor system
+fails to start with `java.lang.IllegalAccessError: class org.agrona.UnsafeApi ... cannot access class
+jdk.internal.misc.Unsafe`:
+
+```
+--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED
+```
+
+With sbt, fork the tests so the flag applies:
+
+```scala
+Test / fork := true
+Test / javaOptions += "--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED"
+```
+
+With Maven, pass it to Surefire:
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <configuration>
+        <argLine>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</argLine>
+    </configuration>
+</plugin>
+```
+
 ### Snapshots
 
 Snapshot versions such as `2.0.0-SNAPSHOT` are published to the
@@ -386,7 +416,7 @@ inmemory-storage {
 }
 ```
 
-### 2.0.0 (unreleased)
+### 2.0.0 (2026-11-23)
  - Update to [Apache Pekko 2.0.0](https://pekko.apache.org/docs/pekko/current/release-notes/releases-2.0.html)
  - Requires Java 17+ (Pekko 2.x minimum)
  - Scala 2.13.18 and 3.3.9; Scala 2.12 is no longer supported (dropped by Pekko 2.x)
